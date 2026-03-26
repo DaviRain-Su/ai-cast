@@ -2,6 +2,10 @@
 node_modules/
 dist/
 
+# Tools
+.pi/
+web/
+
 # Env
 .env
 
