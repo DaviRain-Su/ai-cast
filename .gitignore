@@ -1,0 +1,29 @@
+# Node
+node_modules/
+dist/
+
+# Env
+.env
+
+# Python (legacy)
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+uv.lock
+
+# Audio files
+*.mp3
+*.wav
+*.ogg
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
