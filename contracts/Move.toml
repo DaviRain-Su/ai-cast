@@ -1,0 +1,8 @@
+[package]
+name = "ai_cast"
+edition = "2024"
+
+[dependencies]
+
+[addresses]
+ai_cast = "0x0"

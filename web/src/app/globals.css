@@ -1,0 +1,65 @@
+@import "tailwindcss";
+
+@theme {
+  --color-base: #EAE6DF;
+  --color-surface: #E2DDD6;
+  --color-highlight: #FFFFFF;
+  --color-shadow: #CFC9C0;
+  --color-shadow-deep: #B5AEA3;
+  --color-vinyl: #1C1B1A;
+  --color-accent: #DE533E;
+  --color-text: #2C2A28;
+  --color-text-muted: #8F8B84;
+  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-mono: 'Space Mono', 'Courier New', monospace;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-base);
+    background-image: radial-gradient(circle at 50% 0%, #F5F3EF 0%, #E0DCD4 100%);
+    color: var(--color-text);
+    font-family: var(--font-mono);
+    min-height: 100vh;
+  }
+}
+
+/* Neumorphic utilities */
+.neu-inset {
+  box-shadow: inset 0 3px 6px rgba(0,0,0,0.06), inset 0 1px 2px rgba(0,0,0,0.1), 0 1px 0 rgba(255,255,255,0.7);
+}
+
+.neu-outset {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.15), inset 0 2px 2px rgba(255,255,255,0.9);
+}
+
+.neu-active {
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1), inset 0 2px 4px rgba(0,0,0,0.08), inset 0 1px 1px rgba(255,255,255,0.5);
+}
+
+/* Vinyl animation */
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}
+
+.vinyl-spinning {
+  animation: spin 2s linear infinite;
+}
+
+/* Toast slide-up */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Safe area for mobile bottom nav */
+@layer base {
+  main {
+    padding-bottom: calc(3.5rem + env(safe-area-inset-bottom));
+  }
+  @media (min-width: 640px) {
+    main {
+      padding-bottom: 4rem;
+    }
+  }
+}
