@@ -1,93 +1,76 @@
-# AI Podcast - Mac 本地版
+# AI-CAST
 
-使用 `uv` 管理的 AI 播客生成器。输入文章链接，自动生成播客脚本并朗读。
+输入文章链接，AI 自动生成播客脚本并合成语音。
 
-## 🚀 快速开始
+**技术栈**：TypeScript + Express + [@mariozechner/pi-ai](https://github.com/badlogic/pi-mono) + mlx-audio Qwen3-TTS
 
-### 1. 安装 uv
+---
 
-```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh
-```
+## 快速开始
 
-### 2. 创建虚拟环境
+### 1. 安装依赖
 
 ```bash
-cd ai-podcast
-uv venv
-source .venv/bin/activate
+npm install   # Node.js 依赖
+uv sync       # Python TTS 依赖 (mlx-audio)
 ```
 
-### 3. 安装依赖
-
-**推荐：MeloTTS 版本（效果最好）**
+### 2. 配置环境变量
 
 ```bash
-# 先安装 MeloTTS 的依赖
-uv pip install torch torchaudio numpy transformers phonemizer unidecode pypinyin inflect jieba cn2an pyopenjtalk-prebuilt
-
-# 从 GitHub 安装 melotts
-uv pip install git+https://github.com/myshell-ai/MeloTTS.git
-
-# 再安装其他依赖
-uv pip install gradio openai requests beautifulsoup4
+cp .env.example .env
 ```
 
-**或 Edge TTS 版本（最简单）**
+编辑 `.env`：
+
+```
+KIMI_API_KEY=sk-kimi-你的API密钥
+```
+
+### 3. 启动
 
 ```bash
-uv pip install gradio openai requests beautifulsoup4 edge-tts
+npm run dev
 ```
 
-**或 MLX 版本（M1/M2/M3 最快）**
+访问 http://127.0.0.1:7868
 
-```bash
-uv pip install gradio openai requests beautifulsoup4 mlx mlx-audio
+---
+
+## 使用方式
+
+1. 粘贴文章链接，选择播客风格
+2. 点击 **GENERATE SCRIPT** 生成脚本（可手动编辑）
+3. 选择声音，点击 **BROADCAST** 合成语音
+4. 播放或下载音频
+
+---
+
+## 项目结构
+
+```
+src/
+├── server.ts       # Express 服务器
+├── scraper.ts      # 文章抓取 (cheerio)
+├── llm.ts          # 脚本生成 (pi-ai + Kimi coding API)
+├── tts.ts          # 语音合成 (mlx-audio Qwen3-TTS)
+└── public/
+    └── index.html  # 前端 UI（neumorphic 黑胶唱片风格）
+pyproject.toml      # Python TTS 依赖 (uv)
 ```
 
-### 4. 运行
+## 环境要求
 
-```bash
-export KIMI_API_KEY="sk-你的API密钥"
+- Node.js >= 20
+- Python >= 3.10（通过 [uv](https://docs.astral.sh/uv/) 管理）
+- Apple Silicon Mac（mlx-audio 依赖 MLX）
 
-# 运行推荐版本
-python app_melo.py
+## TTS 模型
 
-# 或 Edge TTS 版本
-python app.py
+使用 [mlx-community/Qwen3-TTS-12Hz-1.7B-CustomVoice-8bit](https://huggingface.co/mlx-community/Qwen3-TTS-12Hz-1.7B-CustomVoice-8bit)，首次运行自动下载到 HuggingFace 缓存（`~/.cache/huggingface/`）。
 
-# 或 MLX 版本
-python app_mlx.py
-```
+可用声音：`serena`、`vivian`、`sohee`、`ryan`、`aiden`、`eric`、`dylan`
 
-浏览器自动打开 http://localhost:7860
-
-## 📦 三个版本
-
-| 版本 | 适用 | 安装命令 | 特点 |
-|------|------|---------|------|
-| **app_melo.py** ⭐ | 所有 Mac | 见上方 | **推荐**，中文效果顶尖，500MB 模型 |
-| **app_mlx.py** | M1/M2/M3 | `uv pip install mlx mlx-audio` | 速度最快，1.7GB 模型 |
-| **app.py** | 快速试用 | `uv pip install edge-tts` | 无需下载模型 |
-
-## 🎙️ 选择建议
-
-- **追求效果** → MeloTTS（`app_melo.py`）
-- **追求速度** → MLX（`app_mlx.py`，仅限 M1/M2/M3）
-- **快速试用** → Edge TTS（`app.py`）
-
-## 📝 首次使用
-
-**MeloTTS**：首次运行自动下载 500MB 模型到 `~/.cache/`，约 5-20 分钟。
-
-**MLX**：首次运行自动下载 1.7GB 模型，Python 3.11 最佳。
-
-**模型下载慢？**
-```bash
-export HF_ENDPOINT=https://hf-mirror.com
-python app_melo.py
-```
-
-## 📄 License
+## License
 
 MIT
