@@ -84,6 +84,20 @@ public fun publish(
     podcast
 }
 
+/// 更新播客元数据（仅 owner 可调用）
+public fun update(
+    podcast: &mut Podcast,
+    title: String,
+    description: String,
+    cover_blob_id: Option<String>,
+    ctx: &TxContext,
+) {
+    assert!(podcast.creator == ctx.sender(), ENotOwner);
+    podcast.title = title;
+    podcast.description = description;
+    podcast.cover_blob_id = cover_blob_id;
+}
+
 /// 设置 SEAL 策略 ID（仅 owner 可调用）
 public fun set_seal_policy(
     podcast: &mut Podcast,

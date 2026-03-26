@@ -1,5 +1,5 @@
-import { readFileSync, existsSync } from "fs";
-import { execSync } from "child_process";
+import { readFileSync, existsSync, unlinkSync, statSync } from "fs";
+import { execFileSync } from "child_process";
 import { tmpdir } from "os";
 import { join, extname } from "path";
 import chalk from "chalk";
@@ -10,15 +10,17 @@ import { uploadBlob } from "../walrus.js";
 import { encryptWithSeal } from "../seal.js";
 import { log, outputResult, outputError } from "../output.js";
 
+const MAX_AUDIO_SIZE = 500 * 1024 * 1024; // 500MB
+
 function convertToOpus(inputPath: string): Uint8Array {
   const outputPath = join(tmpdir(), `ai-cast-${Date.now()}.opus`);
   try {
-    execSync(
-      `ffmpeg -i "${inputPath}" -c:a libopus -b:a 64k -y "${outputPath}"`,
-      { stdio: "pipe" }
-    );
+    // 使用 execFileSync 避免命令注入
+    execFileSync("ffmpeg", ["-i", inputPath, "-c:a", "libopus", "-b:a", "64k", "-y", outputPath], {
+      stdio: "pipe",
+    });
     const data = readFileSync(outputPath);
-    try { execSync(`rm "${outputPath}"`, { stdio: "pipe" }); } catch {}
+    try { unlinkSync(outputPath); } catch {}
     return new Uint8Array(data);
   } catch (err) {
     throw new Error(`ffmpeg 转换失败，请确保已安装 ffmpeg: ${(err as Error).message}`);
@@ -27,11 +29,15 @@ function convertToOpus(inputPath: string): Uint8Array {
 
 function getAudioDuration(filePath: string): number {
   try {
-    const output = execSync(
-      `ffprobe -i "${filePath}" -show_entries format=duration -v quiet -of csv="p=0"`,
-      { encoding: "utf-8" }
-    ).trim();
-    return Math.round(parseFloat(output));
+    // 使用 execFileSync 避免命令注入
+    const output = execFileSync("ffprobe", [
+      "-i", filePath,
+      "-show_entries", "format=duration",
+      "-v", "quiet",
+      "-of", "csv=p=0",
+    ], { encoding: "utf-8" }).trim();
+    const duration = Math.round(parseFloat(output));
+    return Number.isNaN(duration) ? 0 : duration;
   } catch {
     return 0;
   }
@@ -57,6 +63,13 @@ export async function publishCommand(options: {
   if (!existsSync(options.audio)) {
     outputError("音频文件不存在", options.audio);
     log(chalk.red(`✗ 音频文件不存在: ${options.audio}`));
+    process.exit(1);
+  }
+
+  const fileSize = statSync(options.audio).size;
+  if (fileSize > MAX_AUDIO_SIZE) {
+    outputError("音频文件过大", `${(fileSize / 1024 / 1024).toFixed(0)}MB 超过 500MB 限制`);
+    log(chalk.red(`✗ 音频文件过大: ${(fileSize / 1024 / 1024).toFixed(0)}MB (最大 500MB)`));
     process.exit(1);
   }
 

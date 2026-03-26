@@ -8,6 +8,7 @@ use ai_cast::creator::CreatorProfile;
 // === 错误码 ===
 
 const EZeroAmount: u64 = 0;
+const ECreatorMismatch: u64 = 1;
 
 /// 打赏事件
 public struct TipSent has copy, drop {
@@ -29,14 +30,14 @@ public fun tip(
 
     let creator_addr = podcast.creator();
 
-    // 转账给创作者
+    // 验证 creator_profile 与 podcast 的创作者一致
+    assert!(ai_cast::creator::owner(creator_profile) == creator_addr, ECreatorMismatch);
+
     transfer::public_transfer(payment, creator_addr);
 
-    // 更新播客和创作者的打赏总额
     ai_cast::podcast::add_tips(podcast, amount);
     ai_cast::creator::add_tips(creator_profile, amount);
 
-    // 发出事件
     sui::event::emit(TipSent {
         tipper: ctx.sender(),
         podcast_id: object::id(podcast),

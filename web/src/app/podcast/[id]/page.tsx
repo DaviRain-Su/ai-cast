@@ -35,20 +35,33 @@ export default function PodcastPage({ params }: { params: Promise<{ id: string }
   const isPremium = podcast?.tier === 1;
   const hasAccess = !isPremium || !!subscription;
 
+  // 清理 Object URL 防止内存泄漏
+  useEffect(() => {
+    return () => {
+      if (audioUrl) URL.revokeObjectURL(audioUrl);
+    };
+  }, [audioUrl]);
+
   // 从 Walrus 加载免费音频
   useEffect(() => {
     if (!podcast?.audioBlobId || isPremium) return;
 
     setIsLoadingAudio(true);
-    fetch(`${WALRUS_AGGREGATOR}/v1/blobs/${podcast.audioBlobId}`)
+    setDecryptError(null);
+    fetch(`${WALRUS_AGGREGATOR}/v1/blobs/${podcast.audioBlobId}`, {
+      signal: AbortSignal.timeout(60_000),
+    })
       .then((res) => {
         if (!res.ok) throw new Error("音频加载失败");
         return res.blob();
       })
       .then((blob) => {
+        if (audioUrl) URL.revokeObjectURL(audioUrl);
         setAudioUrl(URL.createObjectURL(blob));
       })
-      .catch(console.error)
+      .catch((err) => {
+        setDecryptError(`音频加载失败: ${(err as Error).message}`);
+      })
       .finally(() => setIsLoadingAudio(false));
   }, [podcast?.audioBlobId, isPremium]);
 

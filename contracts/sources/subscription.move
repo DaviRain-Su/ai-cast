@@ -8,7 +8,8 @@ use ai_cast::creator::CreatorProfile;
 
 const EZeroPayment: u64 = 0;
 const ENotSubscriber: u64 = 1;
-const EAlreadyActive: u64 = 2;
+const ENotActive: u64 = 2;
+const ECreatorMismatch: u64 = 3;
 
 /// 订阅对象 — 属于订阅者
 public struct Subscription has key, store {
@@ -36,7 +37,6 @@ public struct SubscriptionCancelled has copy, drop {
 }
 
 /// 订阅某个创作者
-/// duration_epochs: 订阅时长（以 epoch 为单位）
 public fun subscribe(
     creator_profile: &mut CreatorProfile,
     duration_epochs: u64,
@@ -48,10 +48,7 @@ public fun subscribe(
 
     let creator_addr = ai_cast::creator::owner(creator_profile);
 
-    // 将付款转给创作者
     transfer::public_transfer(payment, creator_addr);
-
-    // 更新创作者订阅者计数
     ai_cast::creator::increment_subscribers(creator_profile);
 
     let current_epoch = ctx.epoch();
@@ -86,19 +83,24 @@ public fun renew(
     assert!(amount > 0, EZeroPayment);
 
     let creator_addr = ai_cast::creator::owner(creator_profile);
+    // 验证 creator_profile 与订阅的创作者一致
+    assert!(sub.creator == creator_addr, ECreatorMismatch);
+
     transfer::public_transfer(payment, creator_addr);
 
     let current_epoch = ctx.epoch();
 
-    // 如果已过期，从当前 epoch 重新开始
     if (sub.end_epoch < current_epoch) {
+        // 已过期 — 重新开始
         sub.start_epoch = current_epoch;
         sub.end_epoch = current_epoch + duration_epochs;
-        sub.active = true;
-        // 重新激活时增加订阅者计数
-        ai_cast::creator::increment_subscribers(creator_profile);
+        if (!sub.active) {
+            // 仅当之前已取消时才重新计数
+            sub.active = true;
+            ai_cast::creator::increment_subscribers(creator_profile);
+        };
     } else {
-        // 未过期，延长结束时间
+        // 未过期 — 延长
         sub.end_epoch = sub.end_epoch + duration_epochs;
     };
 
@@ -112,10 +114,12 @@ public fun cancel(
     ctx: &TxContext,
 ) {
     assert!(sub.subscriber == ctx.sender(), ENotSubscriber);
-    assert!(sub.active, EAlreadyActive);
+    assert!(sub.active, ENotActive);
+
+    // 验证 creator_profile 与订阅的创作者一致
+    assert!(sub.creator == ai_cast::creator::owner(creator_profile), ECreatorMismatch);
 
     sub.active = false;
-
     ai_cast::creator::decrement_subscribers(creator_profile);
 
     sui::event::emit(SubscriptionCancelled {
