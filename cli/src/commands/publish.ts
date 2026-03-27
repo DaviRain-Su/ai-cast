@@ -49,6 +49,7 @@ export async function publishCommand(options: {
   title: string;
   description?: string;
   style?: string;
+  tags?: string;
   sourceUrl?: string;
   tier?: string;
   retention?: string;
@@ -72,12 +73,20 @@ export async function publishCommand(options: {
   const tier = options.tier === "premium" ? 1 : 0;
   const retention = parseInt(options.retention ?? "5");
   const style = options.style ?? "deep_dive";
-  const description = options.description ?? "";
+  const tags = options.tags?.split(",").map((t) => t.trim()).filter(Boolean) ?? [];
+
+  // 将标签编码到描述中（格式: description\n\n#tag1 #tag2）
+  let description = options.description ?? "";
+  if (tags.length > 0) {
+    const tagStr = tags.map((t) => `#${t}`).join(" ");
+    description = description ? `${description}\n\n${tagStr}` : tagStr;
+  }
 
   log(chalk.bold("\n🎙️  发布播客\n"));
   log("  创作者:", chalk.cyan(address));
   log("  标题:  ", options.title);
   log("  风格:  ", style);
+  if (tags.length > 0) log("  标签:  ", tags.map((t) => chalk.cyan(`#${t}`)).join(" "));
   log("  级别:  ", tier === 0 ? chalk.green("免费") : chalk.yellow("付费"));
   log("  存储:  ", `${retention} 个 epoch`);
   log();

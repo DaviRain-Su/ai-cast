@@ -2,6 +2,7 @@
 
 import { Command } from "commander";
 import { initCommand } from "./commands/init.js";
+import { installCommand } from "./commands/install.js";
 import { profileCreateCommand } from "./commands/profile.js";
 import { publishCommand } from "./commands/publish.js";
 import { listCommand } from "./commands/list.js";
@@ -9,6 +10,7 @@ import { balanceCommand } from "./commands/balance.js";
 import { fetchCommand } from "./commands/fetch.js";
 import { scriptCommand } from "./commands/script.js";
 import { speakCommand } from "./commands/speak.js";
+import { batchCommand } from "./commands/batch.js";
 import { setJsonMode } from "./output.js";
 
 const program = new Command();
@@ -16,12 +18,21 @@ const program = new Command();
 program
   .name("ai-cast")
   .description("AI-Cast CLI — generate and publish AI podcasts to Sui/Walrus")
-  .version("0.2.0")
+  .version("0.3.0")
   .option("--json", "输出 JSON 格式（适合 Agent 和脚本调用）")
   .hook("preAction", (thisCommand) => {
     const opts = thisCommand.opts();
     if (opts.json) setJsonMode(true);
   });
+
+// === 安装 ===
+
+// ai-cast install
+program
+  .command("install")
+  .description("检查并安装运行环境（TTS 模型、ffmpeg、uv 等）")
+  .option("--check", "仅检查，不安装")
+  .action(installCommand);
 
 // === 生成流程 ===
 
@@ -63,10 +74,23 @@ program
   .requiredOption("-t, --title <title>", "播客标题")
   .option("-d, --description <desc>", "播客描述")
   .option("--style <style>", "播客风格 (deep_dive/news/story/interview)", "deep_dive")
+  .option("--tags <tags>", "标签（逗号分隔，如 ai,web3,defi）")
   .option("--source-url <url>", "原始文章 URL")
   .option("--tier <tier>", "免费或付费 (free/premium)", "free")
   .option("--retention <epochs>", "Walrus 存储周期数", "5")
   .action(publishCommand);
+
+// ai-cast batch
+program
+  .command("batch")
+  .description("从 URL 列表批量生成并发布播客")
+  .requiredOption("-f, --file <path>", "URL 列表文件（每行一个 URL）")
+  .option("-s, --style <style>", "播客风格", "deep_dive")
+  .option("-v, --voice <voice>", "声音", "serena")
+  .option("--tags <tags>", "标签（逗号分隔）")
+  .option("--tier <tier>", "免费或付费", "free")
+  .option("--aggregate", "聚合所有 URL 为一期播客（而非分别发布）")
+  .action(batchCommand);
 
 // === 账户管理 ===
 
@@ -89,6 +113,7 @@ profile
   .description("创建链上创作者档案")
   .requiredOption("--name <name>", "创作者名称")
   .option("--bio <bio>", "个人简介", "")
+  .option("--category <category>", "创作者类型 (tech/finance/news/culture/education/entertainment)")
   .action(profileCreateCommand);
 
 // ai-cast list
