@@ -1,75 +1,129 @@
 # AI-CAST
 
-输入文章链接，AI 自动生成播客脚本并合成语音。
+Decentralized AI Podcast Platform on Sui & Walrus.
 
-**技术栈**：TypeScript + Express + [@mariozechner/pi-ai](https://github.com/badlogic/pi-mono) + mlx-audio Qwen3-TTS
+Article URL in, on-chain podcast out. Built for AI agents.
 
----
+## How it works
 
-## 快速开始
+```
+Article URL → Fetch → LLM Script → TTS Audio → Walrus Storage → Sui Blockchain
+```
 
-### 1. 安装依赖
+Users interact through AI agents. The agent uses the CLI to generate podcasts from articles and publish them on-chain. Listeners discover, play, subscribe, and tip on the web platform.
+
+## Quick Start (for Agents)
 
 ```bash
-npm install   # Node.js 依赖
-uv sync       # Python TTS 依赖 (mlx-audio)
+# Install environment (TTS model ~500MB, first time only)
+npx ai-cast-cli install
+
+# Setup wallet
+npx ai-cast-cli init --package-id 0x10c32bf076865c211bec10e170e2640d08e3515a957754cfdeac890b5a7f2214
+
+# Create creator profile
+npx ai-cast-cli --json profile create --name "My Podcast" --category tech
+
+# Generate and publish
+npx ai-cast-cli --json fetch -u https://example.com/article
+KIMI_API_KEY=sk-xxx npx ai-cast-cli --json script -i articles.json
+npx ai-cast-cli --json speak -i script.txt -v serena
+npx ai-cast-cli --json publish -a /tmp/podcast_*.wav -t "Episode Title" --tags ai,web3
 ```
 
-### 2. 配置环境变量
+See [CLI documentation](cli/README.md) and [skills/](cli/skills/) for full agent integration guide.
+
+## Architecture
+
+```
+ai-cast/
+├── src/           Local podcast generator (Express + Cheerio + Kimi + MLX TTS)
+├── cli/           Agent-friendly CLI (npm: ai-cast-cli)
+├── contracts/     Sui Move smart contracts
+└── web/           Next.js web platform (Vercel)
+```
+
+### Smart Contracts (Sui Move)
+
+| Module | Description |
+|---|---|
+| `creator` | Creator profiles, subscriber count, tip stats |
+| `podcast` | Publish, update, delete podcasts with metadata |
+| `subscription` | Subscribe/renew/cancel, epoch-based billing |
+| `tipping` | Direct SUI tips to creators |
+| `seal_policy` | SEAL access control for premium/paywalled content |
+
+Testnet Package: `0x10c32bf076865c211bec10e170e2640d08e3515a957754cfdeac890b5a7f2214`
+
+### CLI (`ai-cast-cli`)
+
+[![npm](https://img.shields.io/npm/v/ai-cast-cli)](https://www.npmjs.com/package/ai-cast-cli)
+
+| Command | Description |
+|---|---|
+| `install` | Check/install runtime (TTS model, ffmpeg, uv) |
+| `fetch` | Fetch articles (multi-URL aggregation) |
+| `script` | Generate podcast script via LLM |
+| `speak` | Text-to-speech (MLX TTS, 7 voices) |
+| `publish` | Upload to Walrus + register on Sui |
+| `batch` | Batch generate + publish from URL list |
+| `list` | List published podcasts |
+| `balance` | SUI balance + tip/subscription income |
+
+All commands support `--json` for structured output. See [cli/README.md](cli/README.md).
+
+### Web Platform
+
+- Discovery page with search, filtering, pagination
+- Podcast player (neumorphic vinyl record UI)
+- Creator profiles with subscribe + tip
+- SEAL-encrypted premium content with paywall
+- Wallet connect + zkLogin (Enoki) ready
+- Mobile responsive
+
+### Data Flow
+
+| Data | Storage | Access |
+|---|---|---|
+| Audio (free) | Walrus blob | Direct playback |
+| Audio (premium) | Walrus blob (SEAL encrypted) | Decrypt with active subscription |
+| Transcript | Walrus blob | Always free |
+| Metadata | Sui on-chain objects | Public |
+| Tips/Subscriptions | Sui transactions | Direct SUI transfer |
+
+## Development
+
+### Local generator
 
 ```bash
-cp .env.example .env
+npm install && npm run dev    # http://localhost:7868
 ```
 
-编辑 `.env`：
-
-```
-KIMI_API_KEY=sk-kimi-你的API密钥
-```
-
-### 3. 启动
+### Contracts
 
 ```bash
-npm run dev
+cd contracts && sui move build && sui move test
 ```
 
-访问 http://127.0.0.1:7868
+### CLI
 
----
-
-## 使用方式
-
-1. 粘贴文章链接，选择播客风格
-2. 点击 **GENERATE SCRIPT** 生成脚本（可手动编辑）
-3. 选择声音，点击 **BROADCAST** 合成语音
-4. 播放或下载音频
-
----
-
-## 项目结构
-
-```
-src/
-├── server.ts       # Express 服务器
-├── scraper.ts      # 文章抓取 (cheerio)
-├── llm.ts          # 脚本生成 (pi-ai + Kimi coding API)
-├── tts.ts          # 语音合成 (mlx-audio Qwen3-TTS)
-└── public/
-    └── index.html  # 前端 UI（neumorphic 黑胶唱片风格）
-pyproject.toml      # Python TTS 依赖 (uv)
+```bash
+cd cli && npm install && npm run dev -- --help
 ```
 
-## 环境要求
+### Web
 
-- Node.js >= 20
-- Python >= 3.10（通过 [uv](https://docs.astral.sh/uv/) 管理）
-- Apple Silicon Mac（mlx-audio 依赖 MLX）
+```bash
+cd web && npm install && npm run dev    # http://localhost:3000
+```
 
-## TTS 模型
+## Requirements
 
-使用 [mlx-community/Qwen3-TTS-12Hz-1.7B-CustomVoice-8bit](https://huggingface.co/mlx-community/Qwen3-TTS-12Hz-1.7B-CustomVoice-8bit)，首次运行自动下载到 HuggingFace 缓存（`~/.cache/huggingface/`）。
-
-可用声音：`serena`、`vivian`、`sohee`、`ryan`、`aiden`、`eric`、`dylan`
+- Node.js >= 18
+- Python >= 3.10 + [uv](https://docs.astral.sh/uv/)
+- Apple Silicon Mac (for MLX TTS)
+- [Sui CLI](https://docs.sui.io/guides/developer/getting-started/sui-install)
+- [ffmpeg](https://ffmpeg.org/)
 
 ## License
 
