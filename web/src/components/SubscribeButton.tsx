@@ -72,6 +72,8 @@ export function SubscribeButton({
       <button
         onClick={() => setShowOptions(!showOptions)}
         disabled={isPending}
+        aria-label={isSubscribed ? "已订阅" : "订阅"}
+        aria-expanded={showOptions}
         className={`px-6 py-3 rounded-full font-mono text-[0.75rem] font-bold tracking-[2px] cursor-pointer border-none transition-all disabled:opacity-50 ${
           isSubscribed
             ? "bg-surface neu-inset text-text-muted"
@@ -108,11 +110,6 @@ export function SubscribeButton({
         </div>
       )}
 
-      {status === "error" && (
-        <p className="text-[0.55rem] text-accent mt-1 font-mono text-center">
-          订阅失败
-        </p>
-      )}
     </div>
   );
 }

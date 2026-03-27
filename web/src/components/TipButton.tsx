@@ -64,6 +64,8 @@ export function TipButton({ podcastObjectId, creatorProfileId, onSuccess }: TipB
       <button
         onClick={() => setShowPicker(!showPicker)}
         disabled={isPending}
+        aria-label="打赏"
+        aria-expanded={showPicker}
         className="px-5 py-2.5 rounded-full bg-gradient-to-b from-[#FAFAF8] to-[#E8E4DB] neu-outset font-mono text-[0.7rem] font-bold tracking-[1px] text-text cursor-pointer border-none active:neu-active active:translate-y-0.5 transition-all disabled:opacity-50"
       >
         {isPending ? "SENDING..." : status === "success" ? "TIPPED!" : "TIP"}
@@ -84,11 +86,6 @@ export function TipButton({ podcastObjectId, creatorProfileId, onSuccess }: TipB
         </div>
       )}
 
-      {status === "error" && (
-        <p className="text-[0.55rem] text-accent mt-1 font-mono absolute top-full right-0">
-          打赏失败
-        </p>
-      )}
     </div>
   );
 }

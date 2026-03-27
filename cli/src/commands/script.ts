@@ -6,7 +6,8 @@ import {
   type Model,
   type Context,
 } from "@mariozechner/pi-ai";
-import { log, outputResult, outputError } from "../output.js";
+import { log, outputResult } from "../output.js";
+import { handleError } from "../utils.js";
 import type { Article } from "./fetch.js";
 
 registerBuiltInApiProviders();
@@ -59,10 +60,7 @@ export async function scriptCommand(options: {
 }) {
   const apiKey = process.env.KIMI_API_KEY;
   if (!apiKey) {
-    outputError("未设置 KIMI_API_KEY 环境变量");
-    log(chalk.red("✗ 未设置 KIMI_API_KEY 环境变量"));
-    log(chalk.dim("  export KIMI_API_KEY=sk-你的密钥"));
-    process.exit(1);
+    handleError("未设置 KIMI_API_KEY 环境变量", new Error("export KIMI_API_KEY=sk-你的密钥"));
   }
 
   log(chalk.bold("\n🎙️  生成播客脚本\n"));
@@ -74,9 +72,7 @@ export async function scriptCommand(options: {
     const data = JSON.parse(raw);
     articles = data.articles ?? [data];
   } catch (err) {
-    outputError("无法读取输入文件", (err as Error).message);
-    log(chalk.red(`✗ 无法读取: ${options.input}`));
-    process.exit(1);
+    handleError("无法读取输入文件", err);
   }
 
   log(`  输入:  ${articles.length} 篇文章`);
@@ -138,9 +134,6 @@ export async function scriptCommand(options: {
       titles: articles.map((a) => a.title),
     });
   } catch (err) {
-    outputError("LLM 生成失败", (err as Error).message);
-    log(chalk.red("✗ 脚本生成失败"));
-    log(chalk.dim(`  ${(err as Error).message}`));
-    process.exit(1);
+    handleError("LLM 脚本生成失败", err);
   }
 }

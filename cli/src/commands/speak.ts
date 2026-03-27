@@ -4,7 +4,8 @@ import { promisify } from "util";
 import { tmpdir } from "os";
 import { join } from "path";
 import chalk from "chalk";
-import { log, outputResult, outputError } from "../output.js";
+import { log, outputResult } from "../output.js";
+import { handleError } from "../utils.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -25,10 +26,7 @@ export async function speakCommand(options: {
 }) {
   const voice = options.voice;
   if (!VOICES.includes(voice)) {
-    outputError(`无效的声音: ${voice}`, `可选: ${VOICES.join(", ")}`);
-    log(chalk.red(`✗ 无效的声音: ${voice}`));
-    log(chalk.dim(`  可选: ${VOICES.join(", ")}`));
-    process.exit(1);
+    handleError(`无效的声音: ${voice}`, new Error(`可选: ${VOICES.join(", ")}`));
   }
 
   log(chalk.bold("\n🎙️  合成语音\n"));
@@ -38,15 +36,11 @@ export async function speakCommand(options: {
   try {
     text = readFileSync(options.input, "utf-8").trim();
   } catch (err) {
-    outputError("无法读取脚本文件", (err as Error).message);
-    log(chalk.red(`✗ 无法读取: ${options.input}`));
-    process.exit(1);
+    handleError("无法读取脚本文件", err);
   }
 
   if (!text) {
-    outputError("脚本内容为空");
-    log(chalk.red("✗ 脚本内容为空"));
-    process.exit(1);
+    handleError("脚本内容为空", new Error(options.input));
   }
 
   // 清理文本
@@ -98,12 +92,7 @@ export async function speakCommand(options: {
       chars: cleanText.length,
     });
   } catch (err) {
-    outputError("TTS 合成失败", (err as Error).message);
-    log(chalk.red("✗ 语音合成失败"));
-    log(chalk.dim(`  ${(err as Error).message}`));
-    log();
     log(chalk.dim("  确保已安装: uv, python, mlx-audio"));
-    log(chalk.dim("  pip install mlx-audio 或 uv add mlx-audio"));
-    process.exit(1);
+    handleError("TTS 合成失败", err);
   }
 }

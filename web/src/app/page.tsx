@@ -24,7 +24,7 @@ const SORT_OPTIONS = [
 ];
 
 export default function DiscoverPage() {
-  const { data: podcasts, isLoading, error } = useDiscoverPodcasts();
+  const { data: podcasts, isLoading, error, hasNextPage, fetchNextPage, isFetchingNextPage } = useDiscoverPodcasts();
   const [search, setSearch] = useState("");
   const [tierFilter, setTierFilter] = useState("all");
   const [styleFilter, setStyleFilter] = useState("all");
@@ -203,11 +203,26 @@ export default function DiscoverPage() {
         )}
 
         {filtered.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {filtered.map((podcast) => (
-              <PodcastCard key={podcast.objectId} podcast={podcast} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {filtered.map((podcast) => (
+                <PodcastCard key={podcast.objectId} podcast={podcast} />
+              ))}
+            </div>
+
+            {/* Load More */}
+            {hasNextPage && !search && (
+              <div className="text-center mt-8">
+                <button
+                  onClick={() => fetchNextPage()}
+                  disabled={isFetchingNextPage}
+                  className="px-6 py-2.5 rounded-full bg-gradient-to-b from-[#FAFAF8] to-[#E8E4DB] neu-outset font-mono text-[0.65rem] font-bold tracking-[1px] text-text-muted cursor-pointer border-none active:neu-active active:translate-y-0.5 transition-all disabled:opacity-50"
+                >
+                  {isFetchingNextPage ? "LOADING..." : "LOAD MORE"}
+                </button>
+              </div>
+            )}
+          </>
         )}
       </main>
     </div>

@@ -4,11 +4,11 @@ import { tmpdir } from "os";
 import { join, extname } from "path";
 import chalk from "chalk";
 import { Transaction } from "@mysten/sui/transactions";
-import { loadConfig } from "../config.js";
 import { getAddress, signAndExecute } from "../sui.js";
 import { uploadBlob } from "../walrus.js";
 import { encryptWithSeal } from "../seal.js";
-import { log, outputResult, outputError } from "../output.js";
+import { log, outputResult } from "../output.js";
+import { loadConfigWithPackageId, handleError } from "../utils.js";
 
 const MAX_AUDIO_SIZE = 500 * 1024 * 1024; // 500MB
 
@@ -53,30 +53,19 @@ export async function publishCommand(options: {
   tier?: string;
   retention?: string;
 }) {
-  const config = loadConfig();
-  if (!config.packageId) {
-    outputError("尚未设置 packageId", "请先运行 ai-cast init --package-id <ID>");
-    log(chalk.red("✗ 尚未设置 packageId"));
-    process.exit(1);
-  }
+  const config = loadConfigWithPackageId();
 
   if (!existsSync(options.audio)) {
-    outputError("音频文件不存在", options.audio);
-    log(chalk.red(`✗ 音频文件不存在: ${options.audio}`));
-    process.exit(1);
+    handleError("音频文件不存在", new Error(options.audio));
   }
 
   const fileSize = statSync(options.audio).size;
   if (fileSize > MAX_AUDIO_SIZE) {
-    outputError("音频文件过大", `${(fileSize / 1024 / 1024).toFixed(0)}MB 超过 500MB 限制`);
-    log(chalk.red(`✗ 音频文件过大: ${(fileSize / 1024 / 1024).toFixed(0)}MB (最大 500MB)`));
-    process.exit(1);
+    handleError("音频文件过大", new Error(`${(fileSize / 1024 / 1024).toFixed(0)}MB 超过 500MB 限制`));
   }
 
   if (options.script && !existsSync(options.script)) {
-    outputError("文字稿文件不存在", options.script);
-    log(chalk.red(`✗ 文字稿文件不存在: ${options.script}`));
-    process.exit(1);
+    handleError("文字稿文件不存在", new Error(options.script));
   }
 
   const address = getAddress(config);
@@ -191,10 +180,7 @@ export async function publishCommand(options: {
       durationSecs,
     });
   } catch (err) {
-    outputError("链上注册失败", (err as Error).message);
-    log(chalk.red("\n✗ 链上注册失败"));
-    log(chalk.dim(`  ${(err as Error).message}`));
     log(chalk.dim("  音频已上传到 Walrus，可手动重试链上注册"));
-    process.exit(1);
+    handleError("链上注册失败", err);
   }
 }

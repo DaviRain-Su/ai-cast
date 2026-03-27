@@ -1,16 +1,10 @@
 import chalk from "chalk";
-import { loadConfig } from "../config.js";
 import { getAddress, getSuiClient } from "../sui.js";
-import { log, outputResult, outputError } from "../output.js";
+import { log, outputResult } from "../output.js";
+import { loadConfigWithPackageId, handleError, formatDuration } from "../utils.js";
 
 export async function listCommand() {
-  const config = loadConfig();
-  if (!config.packageId) {
-    outputError("尚未设置 packageId", "请先运行 ai-cast init --package-id <ID>");
-    log(chalk.red("✗ 尚未设置 packageId"));
-    process.exit(1);
-  }
-
+  const config = loadConfigWithPackageId();
   const address = getAddress(config);
   const client = getSuiClient(config);
 
@@ -39,17 +33,13 @@ export async function listCommand() {
       const content = obj.data?.content;
       if (content?.dataType !== "moveObject") continue;
       const fields = content.fields as Record<string, any>;
-
-      const tier = fields.tier === 0 ? chalk.green("免费") : chalk.yellow("付费");
       const duration = parseInt(fields.duration_secs ?? "0");
-      const mins = Math.floor(duration / 60);
-      const secs = duration % 60;
-      const timeStr = duration > 0 ? `${mins}:${secs.toString().padStart(2, "0")}` : "未知";
+      const tier = fields.tier === 0 ? chalk.green("免费") : chalk.yellow("付费");
 
       log(chalk.bold(`  ${fields.title}`));
       log(`    ID:       ${chalk.dim(obj.data?.objectId)}`);
       log(`    风格:     ${fields.style}`);
-      log(`    时长:     ${timeStr}`);
+      log(`    时长:     ${duration > 0 ? formatDuration(duration) : "未知"}`);
       log(`    级别:     ${tier}`);
       log(`    Audio:    ${chalk.dim(fields.audio_blob_id)}`);
       log(`    打赏:     ${fields.tip_total ?? 0} SUI`);
@@ -69,12 +59,8 @@ export async function listCommand() {
     }
 
     log(chalk.dim(`  共 ${objects.data.length} 个播客\n`));
-
     outputResult({ status: "ok", address, podcasts });
   } catch (err) {
-    outputError("查询失败", (err as Error).message);
-    log(chalk.red("✗ 查询失败"));
-    log(chalk.dim(`  ${(err as Error).message}`));
-    process.exit(1);
+    handleError("查询失败", err);
   }
 }

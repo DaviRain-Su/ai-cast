@@ -1,7 +1,8 @@
 import { writeFileSync } from "fs";
 import * as cheerio from "cheerio";
 import chalk from "chalk";
-import { log, outputResult, outputError } from "../output.js";
+import { log, outputResult } from "../output.js";
+import { handleError } from "../utils.js";
 
 const ARTICLE_SELECTORS = [
   "article",
@@ -69,9 +70,7 @@ export async function fetchCommand(options: {
 }) {
   const urls = options.url;
   if (!urls || urls.length === 0) {
-    outputError("至少需要一个 URL");
-    log(chalk.red("✗ 至少需要一个 URL"));
-    process.exit(1);
+    handleError("至少需要一个 URL", new Error("使用 -u <url> 指定"));
   }
 
   log(chalk.bold("\n🎙️  抓取文章\n"));
@@ -87,14 +86,11 @@ export async function fetchCommand(options: {
       log(chalk.dim(`  ${article.content.length} 字符`));
     } catch (err) {
       log(chalk.red(`✗ 抓取失败: ${(err as Error).message}`));
-      outputError(`抓取失败: ${url}`, (err as Error).message);
     }
   }
 
   if (articles.length === 0) {
-    outputError("所有 URL 抓取失败");
-    log(chalk.red("\n✗ 所有 URL 抓取失败"));
-    process.exit(1);
+    handleError("所有 URL 抓取失败", new Error("请检查 URL 是否可访问"));
   }
 
   // 输出文件

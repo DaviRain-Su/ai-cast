@@ -8,7 +8,8 @@ import {
   loadConfig,
 } from "../config.js";
 import { getAddress } from "../sui.js";
-import { log, outputResult, outputError } from "../output.js";
+import { log, outputResult } from "../output.js";
+import { handleError } from "../utils.js";
 
 export async function initCommand(options: {
   network?: string;
@@ -30,10 +31,7 @@ export async function initCommand(options: {
   }
 
   if (!existsSync(config.keystorePath)) {
-    outputError("Sui keystore 不存在", config.keystorePath);
-    log(chalk.red(`✗ Sui keystore 不存在: ${config.keystorePath}`));
-    log(chalk.dim("  请先运行 sui client 创建地址，或使用 --keystore 指定路径"));
-    process.exit(1);
+    handleError("Sui keystore 不存在", new Error(`${config.keystorePath}\n  请先运行 sui client 创建地址，或使用 --keystore 指定路径`));
   }
 
   try {
@@ -61,9 +59,6 @@ export async function initCommand(options: {
       configDir: getConfigDir(),
     });
   } catch (err) {
-    outputError("无法读取 Sui keystore", (err as Error).message);
-    log(chalk.red("✗ 无法读取 Sui keystore"));
-    log(chalk.dim(`  ${(err as Error).message}`));
-    process.exit(1);
+    handleError("无法读取 Sui keystore", err);
   }
 }

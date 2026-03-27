@@ -127,15 +127,16 @@ export function VinylPlayer({ audioUrl, title, isLoading }: VinylPlayerProps) {
             {/* Play/Pause Button */}
             <button
               onClick={togglePlay}
+              aria-label={isPlaying ? "暂停" : "播放"}
               className="w-14 h-14 rounded-full bg-gradient-to-b from-[#FAFAF8] to-[#E8E4DB] neu-outset flex items-center justify-center cursor-pointer border-none active:neu-active active:translate-y-0.5 transition-all"
             >
               {isPlaying ? (
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="var(--color-text)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="var(--color-text)" aria-hidden="true">
                   <rect x="6" y="4" width="4" height="16" rx="1" />
                   <rect x="14" y="4" width="4" height="16" rx="1" />
                 </svg>
               ) : (
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="var(--color-text)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="var(--color-text)" aria-hidden="true">
                   <polygon points="6,4 20,12 6,20" />
                 </svg>
               )}
