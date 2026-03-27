@@ -71,6 +71,7 @@ program
   .description("发布播客到 Walrus 和 Sui")
   .requiredOption("-a, --audio <path>", "音频文件路径 (.wav/.mp3/.opus)")
   .option("-s, --script <path>", "文字稿文件路径")
+  .option("-c, --cover <path>", "封面图片路径（可选）")
   .requiredOption("-t, --title <title>", "播客标题")
   .option("-d, --description <desc>", "播客描述")
   .option("--style <style>", "播客风格 (deep_dive/news/story/interview)", "deep_dive")
@@ -113,7 +114,6 @@ profile
   .description("创建链上创作者档案")
   .requiredOption("--name <name>", "创作者名称")
   .option("--bio <bio>", "个人简介", "")
-  .option("--category <category>", "创作者类型 (tech/finance/news/culture/education/entertainment)")
   .action(profileCreateCommand);
 
 // ai-cast list

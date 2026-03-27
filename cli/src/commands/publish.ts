@@ -46,6 +46,7 @@ function getAudioDuration(filePath: string): number {
 export async function publishCommand(options: {
   audio: string;
   script?: string;
+  cover?: string;
   title: string;
   description?: string;
   style?: string;
@@ -67,6 +68,10 @@ export async function publishCommand(options: {
 
   if (options.script && !existsSync(options.script)) {
     handleError("文字稿文件不存在", new Error(options.script));
+  }
+
+  if (options.cover && !existsSync(options.cover)) {
+    handleError("封面图片文件不存在", new Error(options.cover));
   }
 
   const address = getAddress(config);
@@ -142,6 +147,17 @@ export async function publishCommand(options: {
     log("  Blob ID:", chalk.cyan(scriptBlobId));
   }
 
+  // Step 4.5: 上传封面图片到 Walrus（可选）
+  let coverBlobId: string | null = null;
+  if (options.cover) {
+    log(chalk.dim("\n⏳ 上传封面图片到 Walrus..."));
+    const coverData = new Uint8Array(readFileSync(options.cover));
+    const coverResult = await uploadBlob(coverData, { epochs: retention });
+    coverBlobId = coverResult.blobId;
+    log(chalk.green("✓ 封面已上传"));
+    log("  Blob ID:", chalk.cyan(coverBlobId));
+  }
+
   // Step 5: 创建链上播客记录
   log(chalk.dim("\n⏳ 注册到 Sui 链上..."));
 
@@ -153,7 +169,7 @@ export async function publishCommand(options: {
       tx.pure.string(description),
       tx.pure.string(audioResult.blobId),
       tx.pure.option("string", scriptBlobId),
-      tx.pure.option("string", null),
+      tx.pure.option("string", coverBlobId),
       tx.pure.u64(durationSecs),
       tx.pure.string(style),
       tx.pure.option("string", options.sourceUrl ?? null),
@@ -173,6 +189,7 @@ export async function publishCommand(options: {
     if (podcastId) log("  Podcast ID: ", chalk.cyan(podcastId));
     log("  Audio Blob:  ", chalk.cyan(audioResult.blobId));
     if (scriptBlobId) log("  Script Blob: ", chalk.cyan(scriptBlobId));
+    if (coverBlobId) log("  Cover Blob:  ", chalk.cyan(coverBlobId));
     log("  Tx Digest:   ", chalk.dim(result.digest));
     log();
 
@@ -181,6 +198,7 @@ export async function publishCommand(options: {
       podcastId,
       audioBlobId: audioResult.blobId,
       scriptBlobId,
+      coverBlobId,
       digest: result.digest,
       creator: address,
       title: options.title,

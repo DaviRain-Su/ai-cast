@@ -204,6 +204,16 @@ export default function PodcastPage({ params }: { params: Promise<{ id: string }
           </div>
         ) : (
           <div className="py-6">
+            {podcast.coverBlobId && (
+              <div className="flex justify-center mb-6">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={`${WALRUS_AGGREGATOR}/v1/blobs/${podcast.coverBlobId}`}
+                  alt={podcast.title}
+                  className="w-48 h-48 rounded-full object-cover shadow-[0_8px_24px_rgba(0,0,0,0.25)] border-4 border-[#E8E4DB]"
+                />
+              </div>
+            )}
             <VinylPlayer
               audioUrl={audioUrl}
               title={podcast.title}

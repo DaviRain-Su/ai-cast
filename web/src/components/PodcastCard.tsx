@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { STYLE_LABELS } from "@/lib/constants";
+import { STYLE_LABELS, WALRUS_AGGREGATOR } from "@/lib/constants";
 
 export interface PodcastData {
   objectId: string;
@@ -10,6 +10,7 @@ export interface PodcastData {
   creator: string;
   audioBlobId: string;
   scriptBlobId: string | null;
+  coverBlobId: string | null;
   durationSecs: number;
   style: string;
   sourceUrl: string | null;
@@ -34,12 +35,23 @@ export function PodcastCard({ podcast }: { podcast: PodcastData }) {
       href={`/podcast/${podcast.objectId}`}
       className="block rounded-2xl bg-gradient-to-b from-[#FAFAF8] to-[#E8E4DB] neu-outset p-5 hover:translate-y-[-2px] transition-all duration-200 no-underline group"
     >
-      {/* Mini vinyl icon */}
+      {/* Mini vinyl / cover art */}
       <div className="flex items-start gap-4">
-        <div className="w-14 h-14 rounded-full bg-vinyl flex-shrink-0 flex items-center justify-center shadow-[0_4px_8px_rgba(0,0,0,0.3)]">
-          <div className="w-5 h-5 rounded-full bg-[#D9D3C8] border border-[#111] flex items-center justify-center">
-            <div className="w-1.5 h-1.5 rounded-full bg-base shadow-[inset_0_1px_2px_rgba(0,0,0,0.5)]" />
-          </div>
+        <div className="w-14 h-14 rounded-full flex-shrink-0 overflow-hidden shadow-[0_4px_8px_rgba(0,0,0,0.3)]">
+          {podcast.coverBlobId ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={`${WALRUS_AGGREGATOR}/v1/blobs/${podcast.coverBlobId}`}
+              alt={podcast.title}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-vinyl flex items-center justify-center">
+              <div className="w-5 h-5 rounded-full bg-[#D9D3C8] border border-[#111] flex items-center justify-center">
+                <div className="w-1.5 h-1.5 rounded-full bg-base shadow-[inset_0_1px_2px_rgba(0,0,0,0.5)]" />
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="flex-1 min-w-0">

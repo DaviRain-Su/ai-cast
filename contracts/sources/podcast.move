@@ -147,6 +147,7 @@ public fun creator(podcast: &Podcast): address { podcast.creator }
 public fun title(podcast: &Podcast): &String { &podcast.title }
 public fun audio_blob_id(podcast: &Podcast): &String { &podcast.audio_blob_id }
 public fun script_blob_id(podcast: &Podcast): &Option<String> { &podcast.script_blob_id }
+public fun cover_blob_id(podcast: &Podcast): &Option<String> { &podcast.cover_blob_id }
 public fun tier(podcast: &Podcast): u8 { podcast.tier }
 public fun tip_total(podcast: &Podcast): u64 { podcast.tip_total }
 public fun play_count(podcast: &Podcast): u64 { podcast.play_count }

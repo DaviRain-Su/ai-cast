@@ -25,6 +25,7 @@ function parsePodcast(obj: any): PodcastData | null {
     creator: f.creator ?? "",
     audioBlobId: f.audio_blob_id ?? "",
     scriptBlobId: f.script_blob_id ?? null,
+    coverBlobId: f.cover_blob_id ?? null,
     durationSecs: parseInt(f.duration_secs ?? "0"),
     style: f.style ?? "deep_dive",
     sourceUrl: f.source_url ?? null,
