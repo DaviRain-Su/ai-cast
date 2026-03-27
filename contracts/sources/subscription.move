@@ -94,14 +94,15 @@ public fun renew(
         // 已过期 — 重新开始
         sub.start_epoch = current_epoch;
         sub.end_epoch = current_epoch + duration_epochs;
-        if (!sub.active) {
-            // 仅当之前已取消时才重新计数
-            sub.active = true;
-            ai_cast::creator::increment_subscribers(creator_profile);
-        };
     } else {
         // 未过期 — 延长
         sub.end_epoch = sub.end_epoch + duration_epochs;
+    };
+
+    // 如果之前已取消，重新激活并计数
+    if (!sub.active) {
+        sub.active = true;
+        ai_cast::creator::increment_subscribers(creator_profile);
     };
 
     sub.amount_paid = sub.amount_paid + amount;
