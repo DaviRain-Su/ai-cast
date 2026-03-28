@@ -194,6 +194,53 @@ npx ai-cast-cli publish -a /tmp/podcast.wav -t "Episode 1"
 ```
 
 ---
+---
+
+# Agent Quick Start
+
+## 🚀 One-liner for AI Agents
+
+```bash
+# Complete pipeline in one command
+npx ai-cast-cli batch \
+  --url https://example.com/article \
+  --title "AI News" \
+  --voice serena \
+  --publish
+```
+
+**Output:**
+```json
+{
+  "status": "success",
+  "podcastId": "0x123...",
+  "audioUrl": "https://walrus.io/blob/abc...",
+  "txHash": "0xdef..."
+}
+```
+
+✅ Agent parses JSON → Auto-uploads → On-chain in 30s
+
+---
+
+# Why Agent-First?
+
+## 🤖 Built for Autonomous Agents
+
+| Feature | Human Use | Agent Use |
+|---------|-----------|-----------|
+| **Install** | `npx ai-cast-cli install` | Pre-installed in container |
+| **Input** | Interactive prompts | `--json` flag for structured I/O |
+| **Output** | Pretty tables | Machine-readable JSON |
+| **Auth** | Manual wallet setup | Environment variables |
+| **Batch** | One by one | 100 articles at once |
+
+```bash
+# Agent reads output and acts
+npx ai-cast-cli --json batch -f urls.txt | jq '.[].podcastId'
+```
+
+---
 layout: center
 class: text-center
 ---
