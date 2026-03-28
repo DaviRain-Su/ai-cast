@@ -1,23 +1,24 @@
 {
   "name": "ai-cast-cli",
   "version": "0.3.2",
-  "description": "Publish AI-generated podcasts to Sui blockchain & Walrus storage. Agent-friendly CLI with JSON output mode.",
+  "description": "\ud83e\udd16 AI-CAST CLI: Agent-friendly tool for publishing AI podcasts to Sui & Walrus. JSON-first design for autonomous agents.",
   "type": "module",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/DaviRain-Su/ai-cast.git",
+    "url": "https://github.com/DaviRain-Su/ai-cast.git",
     "directory": "cli"
   },
   "keywords": [
-    "ai",
+    "ai-cast",
     "podcast",
     "sui",
+    "blockchain",
     "walrus",
-    "web3",
-    "decentralized",
+    "ai-agent",
     "cli",
-    "agent"
+    "text-to-speech",
+    "web3"
   ],
   "bin": {
     "ai-cast": "dist/index.js"
@@ -54,5 +55,7 @@
     "@types/node": "^20.12.0",
     "tsx": "^4.7.1",
     "typescript": "^5.4.4"
-  }
+  },
+  "author": "DavidRain",
+  "homepage": "https://github.com/DaviRain-Su/ai-cast/tree/main/cli"
 }

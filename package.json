@@ -1,7 +1,7 @@
 {
-  "name": "ai-boardcast",
-  "version": "0.2.0",
-  "description": "AI Podcast Generator",
+  "name": "ai-cast",
+  "version": "1.0.0",
+  "description": "\ud83c\udf99\ufe0f AI-CAST: Decentralized AI Podcast Platform on Sui & Walrus. Article URL \u2192 AI Script \u2192 TTS Audio \u2192 On-chain Podcast. Built for AI agents.",
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/server.ts",
@@ -19,5 +19,27 @@
     "@types/node": "^20.12.0",
     "tsx": "^4.7.1",
     "typescript": "^5.4.4"
+  },
+  "keywords": [
+    "ai",
+    "podcast",
+    "sui",
+    "blockchain",
+    "walrus",
+    "text-to-speech",
+    "agent",
+    "cli",
+    "web3",
+    "move"
+  ],
+  "author": "DavidRain <your@email.com>",
+  "license": "MIT",
+  "homepage": "https://github.com/DaviRain-Su/ai-cast",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DaviRain-Su/ai-cast.git"
+  },
+  "bugs": {
+    "url": "https://github.com/DaviRain-Su/ai-cast/issues"
   }
 }

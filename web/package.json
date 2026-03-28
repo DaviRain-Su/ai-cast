@@ -26,5 +26,15 @@
     "postcss": "^8.5.0",
     "tailwindcss": "^4.0.0",
     "typescript": "^5.4.4"
-  }
+  },
+  "description": "\ud83c\udfa8 AI-CAST Web Platform: Next.js app for discovering, playing, and monetizing on-chain podcasts.",
+  "keywords": [
+    "ai-cast",
+    "podcast",
+    "sui",
+    "nextjs",
+    "web3"
+  ],
+  "author": "DavidRain",
+  "license": "MIT"
 }

@@ -1,16 +1,46 @@
-# AI-CAST
+<div align="center">
 
-Decentralized AI Podcast Platform on Sui & Walrus.
+# 🎙️ AI-CAST
 
-Article URL in, on-chain podcast out. Built for AI agents.
+**Decentralized AI Podcast Platform on Sui & Walrus**
 
-## How it works
+[![npm](https://img.shields.io/npm/v/ai-cast-cli)](https://www.npmjs.com/package/ai-cast-cli)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Demo](https://img.shields.io/badge/Demo-Live-green)](https://slides-2e0ff5ro4-davirainsus-projects.vercel.app)
+
+**Article URL → AI Script → TTS Audio → On-chain Podcast**
+
+Built for AI agents. Agent-first CLI with JSON output.
+
+[📖 Documentation](#quick-start) • [🎬 Demo Day](https://slides-2e0ff5ro4-davirainsus-projects.vercel.app) • [📦 npm](https://www.npmjs.com/package/ai-cast-cli)
+
+</div>
+
+---
+
+## 🎯 What is AI-CAST?
+
+AI-CAST transforms articles into decentralized podcasts:
 
 ```
-Article URL → Fetch → LLM Script → TTS Audio → Walrus Storage → Sui Blockchain
+📄 Article URL 
+    ↓
+🕷️ Web Scraping (Cheerio)
+    ↓
+🧠 LLM Script (Kimi)
+    ↓
+🔊 TTS Audio (MLX)
+    ↓
+💾 Walrus Storage
+    ↓
+⛓️ Sui Blockchain
+    ↓
+🎧 Podcast Player
 ```
 
-Users interact through AI agents. The agent uses the CLI to generate podcasts from articles and publish them on-chain. Listeners discover, play, subscribe, and tip on the web platform.
+**Key Innovation**: Built for AI agents. The CLI outputs JSON for autonomous agents to consume and act upon.
+
+---
 
 ## Quick Start (for Agents)
 
